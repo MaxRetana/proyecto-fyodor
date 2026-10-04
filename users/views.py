@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
@@ -37,6 +38,22 @@ class UserListView(AdministratorRequiredMixin, ListView):
     template_name = 'users/user_list.html'
     context_object_name = 'users'
     queryset = User.objects.prefetch_related('groups').order_by('username')
+    search_fields = ('username', 'first_name', 'last_name', 'email')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Every word must match at least one field, so "john doe" finds first + last name
+        for term in self.request.GET.get('q', '').split():
+            query = Q()
+            for field in self.search_fields:
+                query |= Q(**{f'{field}__icontains': term})
+            queryset = queryset.filter(query)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '').strip()
+        return context
 
 
 class UserSettingsView(AdministratorRequiredMixin, UpdateView):

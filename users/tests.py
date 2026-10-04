@@ -149,3 +149,34 @@ class BreadcrumbTests(UsersBaseTestCase):
     def test_login_has_no_breadcrumb_items(self):
         response = self.client.get(reverse('login'))
         self.assertNotContains(response, 'breadcrumb-item')
+
+
+class UserSearchTests(UsersBaseTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        User.objects.create_user('maria', first_name='Maria', last_name='Lopez', email='mlopez@example.com')
+        User.objects.create_user('pedro', first_name='Pedro', last_name='Ramirez', email='pedro@corp.com')
+
+    def search(self, term):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('user-list'), {'q': term})
+        return {u.username for u in response.context['users']}
+
+    def test_search_by_each_field(self):
+        self.assertEqual(self.search('maria'), {'maria'})
+        self.assertEqual(self.search('Ramirez'), {'pedro'})
+        self.assertEqual(self.search('corp.com'), {'pedro'})
+        self.assertEqual(self.search('PEDRO'), {'pedro'})
+
+    def test_search_by_full_name(self):
+        self.assertEqual(self.search('maria lopez'), {'maria'})
+        self.assertEqual(self.search('maria ramirez'), set())
+
+    def test_empty_search_lists_everyone(self):
+        self.assertEqual(self.search(''), {'admin', 'regular', 'maria', 'pedro'})
+
+    def test_no_results_message(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('user-list'), {'q': 'zzz'})
+        self.assertContains(response, 'No se encontraron usuarios.')
