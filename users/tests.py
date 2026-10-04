@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group, User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .roles import ROLE_ADMINISTRATOR, ROLE_USER
@@ -104,6 +104,34 @@ class AdministratorViewsTests(UsersBaseTestCase):
         created = User.objects.get(username='newuser')
         self.assertTrue(created.check_password(PASSWORD))
         self.assertEqual([g.name for g in created.groups.all()], [ROLE_USER])
+
+    def _create_with_weak_password(self, **extra):
+        self.client.force_login(self.admin)
+        return self.client.post(reverse('user-create'), {
+            'username': 'weak',
+            'password1': '123',
+            'password2': '123',
+            'role': Group.objects.get(name=ROLE_USER).pk,
+            **extra,
+        })
+
+    @override_settings(DEBUG=True)
+    def test_weak_password_is_rejected_by_default(self):
+        response = self._create_with_weak_password()
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username='weak').exists())
+
+    @override_settings(DEBUG=True)
+    def test_skip_password_validation_allows_weak_password(self):
+        response = self._create_with_weak_password(skip_password_validation='on')
+        self.assertRedirects(response, reverse('user-list'))
+        self.assertTrue(User.objects.get(username='weak').check_password('123'))
+
+    @override_settings(DEBUG=False)
+    def test_skip_password_validation_is_ignored_outside_debug(self):
+        response = self._create_with_weak_password(skip_password_validation='on')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username='weak').exists())
 
     def test_regular_user_cannot_create_user(self):
         self.client.force_login(self.regular)
