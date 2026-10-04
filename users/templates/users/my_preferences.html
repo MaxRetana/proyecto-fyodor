@@ -1,6 +1,10 @@
 {% extends 'users/base.html' %}
 {% load roles %}
 {% block title %}Mis preferencias · Fyodor{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+<li class="breadcrumb-item active" aria-current="page">Mis preferencias</li>
+{% endblock %}
 {% block content %}
 <h1 class="h3 mb-3">Mis preferencias</h1>
 <div class="card shadow-sm mb-3">

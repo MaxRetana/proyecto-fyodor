@@ -1,5 +1,11 @@
 {% extends 'users/base.html' %}
 {% block title %}Crear usuario · Fyodor{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+<li class="breadcrumb-item">Configuración</li>
+<li class="breadcrumb-item"><a href="{% url 'user-list' %}">Usuarios</a></li>
+<li class="breadcrumb-item active" aria-current="page">Crear usuario</li>
+{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6">

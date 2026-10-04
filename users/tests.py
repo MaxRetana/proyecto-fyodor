@@ -108,3 +108,16 @@ class AdministratorViewsTests(UsersBaseTestCase):
     def test_regular_user_cannot_create_user(self):
         self.client.force_login(self.regular)
         self.assertEqual(self.client.get(reverse('user-create')).status_code, 403)
+
+
+class BreadcrumbTests(UsersBaseTestCase):
+    def test_breadcrumb_links_back_to_parents(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('user-settings', args=[self.regular.pk]))
+        self.assertContains(response, 'breadcrumb-item')
+        self.assertContains(response, f'href="{reverse("user-list")}">Usuarios</a>')
+        self.assertContains(response, f'href="{reverse("home")}">Inicio</a>')
+
+    def test_login_has_no_breadcrumb_items(self):
+        response = self.client.get(reverse('login'))
+        self.assertNotContains(response, 'breadcrumb-item')

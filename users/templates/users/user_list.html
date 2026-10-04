@@ -1,6 +1,11 @@
 {% extends 'users/base.html' %}
 {% load roles %}
 {% block title %}Usuarios · Fyodor{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+<li class="breadcrumb-item">Configuración</li>
+<li class="breadcrumb-item active" aria-current="page">Usuarios</li>
+{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h3 mb-0">Usuarios</h1>
