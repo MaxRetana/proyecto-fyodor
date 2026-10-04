@@ -46,9 +46,16 @@ Abrir http://127.0.0.1:8000.
 proyecto-fyodor/
 ├── .github/        # Workflows de CI y plantillas de issues y PR
 ├── config/         # Configuración del proyecto (settings, urls, wsgi, asgi)
+├── users/          # Login, roles, preferencias y administración de usuarios
 ├── manage.py
 └── requirements.txt
 ```
+
+## Usuarios y roles
+
+- `/login/`, `/logout/`, `/password-change/`, `/my-preferences/` y `/` (inicio) requieren sesión.
+- Roles (grupos creados por migración): `Administrator` y `User`. Los administradores (o superusuarios) acceden a `/users/` y `/settings/<id>/` para ver y editar a los demás usuarios.
+- Para el primer acceso: `python manage.py createsuperuser`.
 
 ## Flujo de trabajo
 

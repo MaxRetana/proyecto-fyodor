@@ -1,0 +1,21 @@
+{% extends 'users/base.html' %}
+{% load roles %}
+{% block title %}Usuarios · Fyodor{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Usuarios</h1>
+<table class="table table-striped bg-white shadow-sm">
+  <thead><tr><th>Usuario</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Activo</th><th></th></tr></thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td>{{ u.get_full_name|default:"—" }}</td>
+      <td>{{ u.email|default:"—" }}</td>
+      <td>{% for g in u.groups.all %}{{ g|role_label }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+      <td>{{ u.is_active|yesno:"Sí,No" }}</td>
+      <td><a class="btn btn-sm btn-outline-primary" href="{% url 'user-settings' u.pk %}">Configurar</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

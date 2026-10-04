@@ -1,0 +1,27 @@
+{% extends 'users/base.html' %}
+{% block title %}Configuración de {{ object.username }} · Fyodor{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h1 class="h3 mb-3">Configuración de {{ object.username }}</h1>
+    <form method="post" class="card card-body shadow-sm">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="mb-3{% if field.field.widget.input_type == 'checkbox' %} form-check{% endif %}">
+        {% if field.field.widget.input_type == 'checkbox' %}
+          {{ field }} <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% else %}
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+        {% endif %}
+        {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+      <div>
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <a class="btn btn-link" href="{% url 'user-list' %}">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

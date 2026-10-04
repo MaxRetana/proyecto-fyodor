@@ -1,0 +1,6 @@
+{% extends 'users/base.html' %}
+{% block title %}Inicio · Fyodor{% endblock %}
+{% block content %}
+<h1 class="h3">Bienvenido, {{ user.get_full_name|default:user.get_username }}</h1>
+<p class="text-muted">Has iniciado sesión en el sistema.</p>
+{% endblock %}
