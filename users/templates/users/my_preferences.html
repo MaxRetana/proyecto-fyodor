@@ -1,0 +1,22 @@
+{% extends 'users/base.html' %}
+{% load roles %}
+{% block title %}Mis preferencias · Fyodor{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+<li class="breadcrumb-item active" aria-current="page">Mis preferencias</li>
+{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Mis preferencias</h1>
+<div class="card shadow-sm mb-3">
+  <dl class="row m-3">
+    <dt class="col-sm-3">Usuario</dt><dd class="col-sm-9">{{ user.username }}</dd>
+    <dt class="col-sm-3">Nombre</dt><dd class="col-sm-9">{{ user.first_name|default:"—" }}</dd>
+    <dt class="col-sm-3">Apellidos</dt><dd class="col-sm-9">{{ user.last_name|default:"—" }}</dd>
+    <dt class="col-sm-3">Correo</dt><dd class="col-sm-9">{{ user.email|default:"—" }}</dd>
+    <dt class="col-sm-3">Roles</dt>
+    <dd class="col-sm-9">{% for group in user.groups.all %}{{ group|role_label }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+    <dt class="col-sm-3">Último acceso</dt><dd class="col-sm-9">{{ user.last_login|date:"d/m/Y H:i"|default:"—" }}</dd>
+  </dl>
+</div>
+<a class="btn btn-primary" href="{% url 'password-change' %}">Cambiar contraseña</a>
+{% endblock %}
