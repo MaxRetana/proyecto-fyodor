@@ -33,7 +33,7 @@ class LoginTests(UsersBaseTestCase):
         self.assertTrue(response.context['form'].errors)
 
     def test_views_require_login(self):
-        for name in ('home', 'my-preferences', 'password-change', 'user-list'):
+        for name in ('home', 'my-preferences', 'password-change', 'user-list', 'user-create'):
             url = reverse(name)
             response = self.client.get(url)
             self.assertRedirects(response, f"{reverse('login')}?next={url}")
@@ -88,3 +88,23 @@ class AdministratorViewsTests(UsersBaseTestCase):
         self.regular.refresh_from_db()
         self.assertEqual(self.regular.first_name, 'New')
         self.assertEqual([g.name for g in self.regular.groups.all()], [ROLE_ADMINISTRATOR])
+
+    def test_administrator_creates_user_with_role(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('user-create'), {
+            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
+            'email': 'new@example.com',
+            'password1': PASSWORD,
+            'password2': PASSWORD,
+            'role': Group.objects.get(name=ROLE_USER).pk,
+        })
+        self.assertRedirects(response, reverse('user-list'))
+        created = User.objects.get(username='newuser')
+        self.assertTrue(created.check_password(PASSWORD))
+        self.assertEqual([g.name for g in created.groups.all()], [ROLE_USER])
+
+    def test_regular_user_cannot_create_user(self):
+        self.client.force_login(self.regular)
+        self.assertEqual(self.client.get(reverse('user-create')).status_code, 403)

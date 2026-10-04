@@ -3,9 +3,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
-from django.views.generic import ListView, TemplateView, UpdateView
+from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
-from .forms import StyledPasswordChangeForm, UserSettingsForm
+from .forms import StyledPasswordChangeForm, UserCreateForm, UserSettingsForm
 from .roles import is_administrator
 
 
@@ -47,4 +47,15 @@ class UserSettingsView(AdministratorRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Usuario actualizado correctamente.')
+        return super().form_valid(form)
+
+
+class UserCreateView(AdministratorRequiredMixin, CreateView):
+    model = User
+    form_class = UserCreateForm
+    template_name = 'users/user_create.html'
+    success_url = reverse_lazy('user-list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Usuario creado correctamente.')
         return super().form_valid(form)
